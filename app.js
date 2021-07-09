@@ -8,7 +8,7 @@ const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
 
-app.get('/api/v1/tours', (req, res) => {
+const getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
     results: tours.length,
@@ -16,9 +16,9 @@ app.get('/api/v1/tours', (req, res) => {
       tours: tours,
     },
   });
-});
+};
 
-app.get('/api/v1/tours/:id/', (req, res) => {
+const getTour = (req, res) => {
   const id = req.params.id * 1; // convert the string to a number
   const tour = tours.find((el) => el.id === id);
 
@@ -36,13 +36,10 @@ app.get('/api/v1/tours/:id/', (req, res) => {
       tour: tour,
     },
   });
-});
+};
 
-app.post('/api/v1/tours', (req, res) => {
-  // console.log(req.body); // without app.use(express.json()) middleware, we get undefined
-
+const createTour = (req, res) => {
   const newId = tours[tours.length - 1].id + 1;
-  // Object.assign creates a new object by merging two objects together - won't mutate the original
   const newTour = Object.assign({ id: newId }, req.body);
   tours.push(newTour);
 
@@ -58,9 +55,9 @@ app.post('/api/v1/tours', (req, res) => {
       });
     }
   );
-});
+};
 
-app.patch('/api/v1/tours/:id', (req, res) => {
+const updateTour = (req, res) => {
   const id = req.params.id * 1;
   const tour = tours.find((tour) => tour.id === id);
 
@@ -72,8 +69,8 @@ app.patch('/api/v1/tours/:id', (req, res) => {
   }
 
   const updatedTour = { ...tour, ...req.body };
-  const updatedTours = tours.map((tour) =>
-    tour.id === updatedTour.id ? updatedTour : tour
+  const updatedTours = tours.map((el) =>
+    el.id === updatedTour.id ? updatedTour : el
   );
 
   fs.writeFile(
@@ -86,7 +83,44 @@ app.patch('/api/v1/tours/:id', (req, res) => {
       });
     }
   );
-});
+};
+
+const deleteTour = (req, res) => {
+  const id = parseInt(req.params.id);
+  const tour = tours.find((t) => t.id === id);
+
+  if (!tour) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invaild ID',
+    });
+  }
+
+  const updatedTours = tours.filter((el) => el.id !== tour.id);
+  fs.writeFile(
+    path.resolve(__dirname, 'dev-data', 'data', 'tours-simple.json'),
+    JSON.stringify(updatedTours),
+    (err) => {
+      res.status(204).json({
+        status: 'success',
+        data: null,
+      });
+    }
+  );
+};
+
+// app.get('/api/v1/tours', getAllTours);
+// app.get('/api/v1/tours/:id/', getTour);
+// app.post('/api/v1/tours', createTour);
+// app.patch('/api/v1/tours/:id', updateTour);
+// app.delete('/api/v1/tours/:id', deleteTour);
+
+app.route('/api/v1/tours').get(getAllTours).post(createTour);
+app
+  .route('/api/v1/tours/:id')
+  .get(getTour)
+  .patch(updateTour)
+  .delete(deleteTour);
 
 const port = 3000;
 app.listen(port, () => {
