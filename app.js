@@ -3,14 +3,11 @@ const express = require('express');
 const morgan = require('morgan');
 
 const app = express();
-app.use(express.json()); // middleware : function that can modify the incoming data between the request and response. The data from the body is added to the request object data using this middleware.
-console.log(express.json());
 
-// We pass in a third argument into the callback function so Node knows we're passing in Middleware, 'next' is the conventional name
-app.use((req, res, next) => {
-  console.log('Hello from the middleware 🤗');
-  next();
-});
+//////////////// MIDDLEWARE ////////////////
+
+app.use(morgan('dev'));
+app.use(express.json());
 
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
@@ -20,6 +17,8 @@ app.use((req, res, next) => {
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
 );
+
+//////////////// ROUTE HANDLERS ////////////////
 
 const getAllTours = (req, res) => {
   res.status(200).json({
@@ -123,11 +122,38 @@ const deleteTour = (req, res) => {
   );
 };
 
-// app.get('/api/v1/tours', getAllTours);
-// app.get('/api/v1/tours/:id/', getTour);
-// app.post('/api/v1/tours', createTour);
-// app.patch('/api/v1/tours/:id', updateTour);
-// app.delete('/api/v1/tours/:id', deleteTour);
+const getAllUsers = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not yet defined.',
+  });
+};
+const createUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not yet defined.',
+  });
+};
+const getUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not yet defined.',
+  });
+};
+const updateUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not yet defined.',
+  });
+};
+const deleteUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'This route is not yet defined.',
+  });
+};
+
+//////////////// ROUTES ////////////////
 
 app.route('/api/v1/tours').get(getAllTours).post(createTour);
 app
@@ -135,6 +161,15 @@ app
   .get(getTour)
   .patch(updateTour)
   .delete(deleteTour);
+
+app.route('/api/v1/users').get(getAllUsers).post(createUser);
+app
+  .route('/api/v1/users/:id')
+  .get(getUser)
+  .patch(updateUser)
+  .delete(deleteUser);
+
+//////////////// START SERVER ////////////////
 
 const port = 3000;
 app.listen(port, () => {
