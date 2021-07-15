@@ -1,8 +1,21 @@
 const fs = require('fs');
-const http = require('http');
 const express = require('express');
+const morgan = require('morgan');
+
 const app = express();
 app.use(express.json()); // middleware : function that can modify the incoming data between the request and response. The data from the body is added to the request object data using this middleware.
+console.log(express.json());
+
+// We pass in a third argument into the callback function so Node knows we're passing in Middleware, 'next' is the conventional name
+app.use((req, res, next) => {
+  console.log('Hello from the middleware 🤗');
+  next();
+});
+
+app.use((req, res, next) => {
+  req.requestTime = new Date().toISOString();
+  next();
+});
 
 const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`)
@@ -11,6 +24,7 @@ const tours = JSON.parse(
 const getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
+    requestedAt: req.requestTime,
     results: tours.length,
     data: {
       tours: tours,
