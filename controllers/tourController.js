@@ -4,6 +4,29 @@ const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
 );
 
+// Middleware:
+exports.checkID = (req, res, next, val) => {
+  console.log(`Tour ID is ${val}`);
+  if (req.params.id * 1 > tours.length) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invaild ID',
+    });
+  }
+  next();
+};
+
+exports.checkBody = (req, res, next) => {
+  if (!req.body.name || !req.body.price) {
+    return res.status(404).json({
+      status: 'fail',
+      message: 'Invalid name or price',
+    });
+  }
+  next();
+};
+
+// Callback functions:
 exports.getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
@@ -18,14 +41,6 @@ exports.getAllTours = (req, res) => {
 exports.getTour = (req, res) => {
   const id = req.params.id * 1; // convert the string to a number
   const tour = tours.find((el) => el.id === id);
-
-  // if (id > tours.length) {
-  if (!tour) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Invalid ID',
-    });
-  }
 
   res.status(200).json({
     status: 'success',
@@ -58,13 +73,6 @@ exports.updateTour = (req, res) => {
   const id = req.params.id * 1;
   const tour = tours.find((tour) => tour.id === id);
 
-  if (!tour) {
-    return res.status(404).send({
-      status: 'fail',
-      message: 'Invalid ID',
-    });
-  }
-
   const updatedTour = { ...tour, ...req.body };
   const updatedTours = tours.map((el) =>
     el.id === updatedTour.id ? updatedTour : el
@@ -85,13 +93,6 @@ exports.updateTour = (req, res) => {
 exports.deleteTour = (req, res) => {
   const id = parseInt(req.params.id);
   const tour = tours.find((t) => t.id === id);
-
-  if (!tour) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'Invaild ID',
-    });
-  }
 
   const updatedTours = tours.filter((el) => el.id !== tour.id);
   fs.writeFile(
