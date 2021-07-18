@@ -1,35 +1,21 @@
 const Tour = require('../models/tourModel');
 
-// const tours = JSON.parse(
-//   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
-// );
-
-// Middleware:
-// exports.checkID = (req, res, next, val) => {
-// console.log(`Tour ID is ${val}`);
-// if (req.params.id * 1 > tours.length) {
-//   return res.status(404).json({
-//     status: 'fail',
-//     message: 'Invaild ID',
-//   });
-// }
-//   next();
-// };
-
-// exports.checkBody = (req, res, next) => {
-//   if (!req.body.name || !req.body.price) {
-//     return res.status(404).json({
-//       status: 'fail',
-//       message: 'Invalid name or price',
-//     });
-//   }
-//   next();
-// };
-
-// Callback functions:
 exports.getAllTours = async (req, res) => {
   try {
-    const tours = await Tour.find();
+    // Filtering
+    const queryObj = { ...req.query }; // creating a shallow copy
+    const excludedFields = ['page', 'sort', 'limit', 'fields'];
+    excludedFields.forEach((el) => delete queryObj[el]);
+
+    // Advanced Filtering
+    let queryStr = JSON.stringify(queryObj);
+    queryStr = JSON.parse(
+      queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`)
+    );
+
+    const query = Tour.find(queryStr);
+    // Sorting, pagination, etc. goes here
+    const tours = await query;
 
     res.status(200).json({
       status: 'success',
