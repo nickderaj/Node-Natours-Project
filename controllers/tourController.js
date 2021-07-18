@@ -1,20 +1,55 @@
 const Tour = require('../models/tourModel');
 
+exports.aliasTopTours = (req, res, next) => {
+  req.query.limit = '5';
+  req.query.sort = '-ratingsAverage, price';
+  req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
+  next();
+};
+
 exports.getAllTours = async (req, res) => {
   try {
-    // Filtering
+    // 1A Filtering
     const queryObj = { ...req.query }; // creating a shallow copy
     const excludedFields = ['page', 'sort', 'limit', 'fields'];
     excludedFields.forEach((el) => delete queryObj[el]);
 
-    // Advanced Filtering
+    // 1B Advanced Filtering
     let queryStr = JSON.stringify(queryObj);
     queryStr = JSON.parse(
       queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`)
     );
 
-    const query = Tour.find(queryStr);
-    // Sorting, pagination, etc. goes here
+    let query = Tour.find(queryStr);
+
+    // 2 Sorting
+    if (req.query.sort) {
+      const sortBy = req.query.sort.split(',').join(' '); // as we write sort=price, ratingsAverage
+      query = query.sort(sortBy); // works by chaining a method to the query
+    } else {
+      query = query.sort('-createdAt');
+    }
+
+    // 3 Limiting
+    if (req.query.fields) {
+      const fields = req.query.fields.split(',').join(' ');
+      query = query.select(fields);
+    } else {
+      query = query.select('-__v'); // if we add '-' at the front, we EXCLUDE this field
+    }
+
+    // 4 Pagination
+    const page = req.query.page * 1 || 1;
+    const limit = req.query.limit * 1 || 100; // default 100
+    const skip = (page - 1) * limit;
+    query = query.skip(skip).limit(limit);
+
+    if (req.query.page) {
+      const numTours = await Tour.countDocuments();
+      if (skip >= numTours) throw new Error('This page does not exist');
+    }
+
+    // Execution
     const tours = await query;
 
     res.status(200).json({
