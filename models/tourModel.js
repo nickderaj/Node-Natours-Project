@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+const validator = require('validator');
 
 const tourSchema = new mongoose.Schema(
   {
@@ -13,6 +14,7 @@ const tourSchema = new mongoose.Schema(
         'A tour name must be less than or equal to 40 characters.',
       ],
       minlength: [10, 'A tour name must be at least 10 characters.'],
+      // validate: [validator.isAlpha, 'Tour name must only contain characters'],
     },
     slug: String,
     duration: {
@@ -47,6 +49,12 @@ const tourSchema = new mongoose.Schema(
     },
     priceDiscount: {
       type: Number,
+      validate: [
+        function (val) {
+          return val < this.price; // will be true and won't have an error if the discount < the price
+        },
+        'Discount price ({VALUE}) should be below regular price',
+      ],
     },
     summary: {
       type: String,
