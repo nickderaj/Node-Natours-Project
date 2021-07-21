@@ -92,37 +92,20 @@ tourSchema.virtual('durationWeeks').get(function () {
 });
 
 // DOCUMENT MIDDLEWARE
-// Called before a document is saved to the database - runs before .save() and .create(), NOT for .insertMany()
 tourSchema.pre('save', function (next) {
-  // console.log(this); // 'this' points to the document that is being saved.
   this.slug = slugify(this.name, { lower: true });
   next();
 });
 
-// tourSchema.post('save', function (doc, next) {
-//   console.log(doc);
-//   next();
-// });
-
 // QUERY MIDDLEWARE
 tourSchema.pre(/^find/, function (next) {
-  // console.log(this); // 'this' points to the query now, not the document.
-  this.find({ secretTour: { $ne: true } }); // hides anything that has 'secretTour: true'
-  // this.start = Date.now();
+  this.find({ secretTour: { $ne: true } });
   next();
 });
-
-// // runs after the query has executed, so it has access to the docs that are returned:
-// tourSchema.post(/^find/, function (docs, next) {
-//   console.log(`Query took ${Date.now() - this.start} milliseconds!`);
-//   console.log(docs);
-//   next();
-// });
 
 // AGGREGATION MIDDLEWARE
 tourSchema.pre('aggregate', function (next) {
   this._pipeline.unshift({ $match: { secretTour: { $ne: true } } });
-  console.log(this._pipeline); // 'this' points to the current aggregation object
   next();
 });
 
