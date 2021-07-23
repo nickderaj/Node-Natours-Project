@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 
-const userSchema = new mongooose.Schema({
+const userSchema = new mongoose.Schema({
   name: {
     type: String,
     required: [true, 'Please provide your name'],
@@ -22,12 +22,9 @@ const userSchema = new mongooose.Schema({
   },
   passwordConfirm: {
     type: String,
-    validate: [
-      (val) => val === this.password,
-      'Password not repeated properly',
-    ],
+    required: [true, 'Please confirm your password'],
   },
 });
 
 const User = mongoose.model('User', userSchema);
-module.eports = User;
+module.exports = User;
