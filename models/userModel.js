@@ -42,8 +42,14 @@ const userSchema = new mongoose.Schema({
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
 
+///////////// MIDDLEWARE ////////////////
 userSchema.pre('save', async function (next) {
   // Only run this function is password was actually modified:
   if (!this.isModified('password')) return next(); // guard clause
@@ -63,6 +69,12 @@ userSchema.pre('save', function (next) {
   next();
 });
 
+userSchema.pre(/^find/, function (next) {
+  this.find({ active: { $ne: false } });
+  next();
+});
+
+/////////////// METHODS ////////////////
 userSchema.methods.correctPassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
