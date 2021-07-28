@@ -112,6 +112,12 @@ const tourSchema = new mongoose.Schema(
         ref: 'User',
       },
     ],
+    // reviews: [
+    //   {
+    //     type: mongoose.Schema.ObjectId,
+    //     ref: 'Review',
+    //   },
+    // ],
   },
   {
     toJSON: { virtuals: true },
@@ -121,6 +127,13 @@ const tourSchema = new mongoose.Schema(
 
 tourSchema.virtual('durationWeeks').get(function () {
   return this.duration / 7;
+});
+
+// Virtual Populating:
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour', // in our review model we have a field called tour
+  localField: '_id', // this is how 'tour' is called in the other model
 });
 
 // DOCUMENT MIDDLEWARE
