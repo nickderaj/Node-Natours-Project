@@ -23,7 +23,7 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
     requestedAt: req.requestTime,
     results: tours.length,
     data: {
-      tours: tours,
+      tours,
     },
   });
 });
