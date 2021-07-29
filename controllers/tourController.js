@@ -131,3 +131,50 @@ exports.getToursWithin = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+// router.route('/distances/:latlng/unit/:unit').get(tourController.getDistances);
+exports.getDistances = catchAsync(async (req, res, next) => {
+  const { latlng, unit } = req.params;
+  const [lat, lng] = latlng.split(',');
+
+  // Guard clauses
+  if (unit !== 'mi' && unit !== 'km') {
+    next(new AppError('Please provide the unit in km or mi', 400));
+  }
+  if (!lat || !lng) {
+    next(
+      new AppError(
+        'Please provide latitude and longitude in the format lat,lng.',
+        400
+      )
+    );
+  }
+
+  const multiplier = unit === 'mi' ? 0.000621371 : 0.001; // convert from meters to KM/miles
+  const distances = await Tour.aggregate([
+    {
+      // geoNear ALWAYS needs to be the first stage, and requires at least one of our fields contains a geospatial index. (tourSchema.index ({ startLocation: 2dsphere }))
+      $geoNear: {
+        near: {
+          type: 'Point',
+          coordinates: [lng * 1, lat * 1],
+        },
+        distanceField: 'distance',
+        distanceMultiplier: multiplier, //  to convert from meters to KM/miles
+      },
+    },
+    {
+      $project: {
+        distance: 1,
+        name: 1,
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      data: distances,
+    },
+  });
+});
