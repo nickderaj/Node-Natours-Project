@@ -14,6 +14,7 @@ const globalErrorHandler = require('./controllers/errorController');
 const tourRouter = require('./routes/tourRouter');
 const userRouter = require('./routes/userRouter');
 const reviewRouter = require('./routes/reviewRouter');
+const viewRouter = require('./routes/viewRouter');
 
 //////////////// MIDDLEWARE ////////////////
 const app = express();
@@ -56,22 +57,7 @@ app.use(
 );
 
 //////////////// ROUTES ////////////////
-// Rendering browser routes
-app.get('/', (req, res) => {
-  res.status(200).render('base', {
-    title: 'Exciting tours for adventurous people',
-    user: 'Nick',
-  });
-});
-
-app.get('/overview', (req, res) => {
-  res.status(200).render('overview', { title: 'All Tours' });
-});
-app.get('/tour', (req, res) => {
-  res.status(200).render('overview', { title: 'The Forest Hiker Tour' });
-});
-
-// API Routes
+app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
