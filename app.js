@@ -1,4 +1,5 @@
 //////////////// EXPRESS ////////////////
+const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
@@ -16,6 +17,13 @@ const reviewRouter = require('./routes/reviewRouter');
 
 //////////////// MIDDLEWARE ////////////////
 const app = express();
+
+// Setting up Pug (server-side rendering):
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views')); // writes '__dirname/views' behind the scenes
+
+// Serving static files:
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(helmet()); // Security HTTP Headers
 if (process.env.NODE_ENV === 'development') {
@@ -48,6 +56,22 @@ app.use(
 );
 
 //////////////// ROUTES ////////////////
+// Rendering browser routes
+app.get('/', (req, res) => {
+  res.status(200).render('base', {
+    title: 'Exciting tours for adventurous people',
+    user: 'Nick',
+  });
+});
+
+app.get('/overview', (req, res) => {
+  res.status(200).render('overview', { title: 'All Tours' });
+});
+app.get('/tour', (req, res) => {
+  res.status(200).render('overview', { title: 'The Forest Hiker Tour' });
+});
+
+// API Routes
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
