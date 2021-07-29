@@ -6,8 +6,7 @@ const bcrypt = require('bcryptjs');
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, 'Please provide your name'],
-    trim: true,
+    required: [true, 'Please tell us your name!'],
   },
   email: {
     type: String,
@@ -24,7 +23,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, 'A user must have a password.'],
+    required: [true, 'Please provide a password'],
     minlength: 8,
     select: false,
   },
@@ -32,7 +31,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please confirm your password'],
     validate: {
-      // This only works on CREATE & SAVE!! not update
+      // This only works on CREATE and SAVE!!!
       validator: function (el) {
         return el === this.password;
       },
