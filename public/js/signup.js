@@ -1,11 +1,14 @@
-const login = async (email, password) => {
+const signup = async (name, email, photo, password, passwordConfirm) => {
   try {
     const res = await axios({
       method: 'POST',
-      url: 'http://127.0.0.1:8000/api/v1/users/login',
+      url: 'http://127.0.0.1:8000/api/v1/users/signup',
       data: {
+        name,
         email,
+        photo,
         password,
+        passwordConfirm,
       },
     });
     console.log(res);
@@ -16,8 +19,11 @@ const login = async (email, password) => {
 
 document.querySelector('.form').addEventListener('submit', (e) => {
   e.preventDefault();
+  const name = document.getElementById('username').value;
   const email = document.getElementById('email').value;
+  const photo = document.getElementById('photo').value;
   const password = document.getElementById('password').value;
-  login(email, password);
+  const passwordConfirm = document.getElementById('passwordConfirm').value;
+  signup(name, email, photo, password, passwordConfirm);
   console.log(email, password);
 });

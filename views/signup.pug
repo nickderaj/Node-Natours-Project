@@ -1,5 +1,8 @@
 extends base
 
+block append head
+  script(defer src='/js/signup.js')
+
 block content
   main.main
     .login-form
@@ -13,7 +16,7 @@ block content
           input#email.form__input(type='email', placeholder='you@example.com', required)
         .form__group
           label.form__label(for='photo') Photo Link (Optional)
-          input#photo.form__input(type='url', placeholder='http://www.example.com/imagelink', required)
+          input#photo.form__input(type='url', placeholder='http://www.example.com/imagelink')
         .form__group.ma-bt-md
           label.form__label(for='password') Password
           input#password.form__input(type='password', placeholder='••••••••', required, minlength='8')

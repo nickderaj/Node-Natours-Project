@@ -7,6 +7,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cookieParser = require('cookie-parser');
 
 //////////////// FILES ////////////////
 const AppError = require('./utils/appError');
@@ -26,7 +27,17 @@ app.set('views', path.join(__dirname, 'views')); // writes '__dirname/views' beh
 // Serving static files:
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(helmet()); // Security HTTP Headers
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'", 'https:', 'http:', 'data:', 'ws:'],
+      baseUri: ["'self'"],
+      fontSrc: ["'self'", 'https:', 'http:', 'data:'],
+      scriptSrc: ["'self'", 'https:', 'http:', 'blob:'],
+      styleSrc: ["'self'", "'unsafe-inline'", 'https:', 'http:'],
+    },
+  })
+); // Security HTTP Headers
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev')); // Development Logging
 }
@@ -39,8 +50,13 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 app.use(express.json({ limit: '10kb' })); // Body parser, reading data from the body into req.body
+app.use(cookieParser()); // Parse the data from the cookies
 app.use(mongoSanitize()); // Data sanitisation against NoSQL query injection
 app.use(xss()); // Data sanitsation against XSS
+app.use((req, res, next) => {
+  console.log(req.cookies);
+  next();
+});
 
 // Prevent parameter pollution
 app.use(

@@ -1,6 +1,6 @@
 // called data-locations in PUG, so it is called dataset.locations in JS
 const locations = JSON.parse(document.getElementById('map').dataset.locations);
-console.log(locations);
+// console.log(locations);
 
 mapboxgl.accessToken =
   'pk.eyJ1IjoibmQxMzAzMSIsImEiOiJja3JwbjA1bGowMDZnMnBvMHdmcjJkNTN2In0.KJUjocwoqdB8DU2Z8c_aaA';
