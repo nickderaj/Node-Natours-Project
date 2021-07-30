@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 const signup = async (name, email, photo, password, passwordConfirm) => {
   try {
     const res = await axios({
@@ -11,7 +13,12 @@ const signup = async (name, email, photo, password, passwordConfirm) => {
         passwordConfirm,
       },
     });
-    console.log(res);
+
+    if (res.data.status === 'success') {
+      window.setTimeout(() => {
+        location.assign('/');
+      }, 1500);
+    }
   } catch (err) {
     console.log(err.response.data);
   }
