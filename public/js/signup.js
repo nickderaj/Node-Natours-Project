@@ -1,6 +1,7 @@
 import axios from 'axios';
+import { hideAlert, showAlert } from './alert';
 
-const signup = async (name, email, photo, password, passwordConfirm) => {
+export const signup = async (name, email, photo, password, passwordConfirm) => {
   try {
     const res = await axios({
       method: 'POST',
@@ -15,22 +16,13 @@ const signup = async (name, email, photo, password, passwordConfirm) => {
     });
 
     if (res.data.status === 'success') {
+      showAlert('success', 'Signed up successfully!');
       window.setTimeout(() => {
         location.assign('/');
-      }, 1500);
+      }, 1000);
     }
   } catch (err) {
-    console.log(err.response.data);
+    hideAlert();
+    showAlert('error', err.response.data.message);
   }
 };
-
-document.querySelector('.form').addEventListener('submit', (e) => {
-  e.preventDefault();
-  const name = document.getElementById('username').value;
-  const email = document.getElementById('email').value;
-  const photo = document.getElementById('photo').value;
-  const password = document.getElementById('password').value;
-  const passwordConfirm = document.getElementById('passwordConfirm').value;
-  signup(name, email, photo, password, passwordConfirm);
-  console.log(email, password);
-});
