@@ -64,6 +64,11 @@ exports.login = catchAsync(async (req, res, next) => {
   createSendToken(user, 200, res);
 });
 
+exports.logout = (req, res, next) => {
+  res.clearCookie('jwt');
+  res.status(200).json({ status: 'success' });
+};
+
 exports.protect = catchAsync(async (req, res, next) => {
   // 1) Get token & check if it exists
   let token;
@@ -102,6 +107,7 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // Grant access to protected route
   req.user = currentUser;
+  res.locals.user = currentUser;
   next();
 });
 
@@ -205,27 +211,33 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 });
 
 // Only for rendered pages, no errors will ever be logged
-exports.isLoggedIn = catchAsync(async (req, res, next) => {
-  let token;
+exports.isLoggedIn = async (req, res, next) => {
+  try {
+    let token;
 
-  if (req.cookies.jwt) {
-    // 1) Verify Token
-    const decoded = await promisify(jwt.verify)(
-      req.cookies.jwt,
-      process.env.JWT_SECRET
-    );
+    if (req.cookies.jwt) {
+      // 1) Verify Token
+      const decoded = await promisify(jwt.verify)(
+        req.cookies.jwt,
+        process.env.JWT_SECRET
+      );
 
-    // 2) User still exists
-    const currentUser = await User.findById(decoded.id);
-    if (!currentUser) return next();
+      // 2) User still exists
+      const currentUser = await User.findById(decoded.id);
+      if (!currentUser) return next();
 
-    // 3) Check if user changed PW after JWT was issued
-    if (currentUser.changedPasswordAfter(decoded.iat)) {
-      return next();
+      // 3) Check if user changed PW after JWT was issued
+      if (currentUser.changedPasswordAfter(decoded.iat)) {
+        return next();
+      }
+
+      // There is a logged in user, render website in template
+      res.locals.user = currentUser; // all pug templates  have access to 'res.locals'
     }
-
-    // There is a logged in user, render website in template
-    res.locals.user = currentUser; // all pug templates  have access to 'res.locals'
+    next();
+  } catch (err) {
+    next();
   }
-  next();
-});
+};
+
+
