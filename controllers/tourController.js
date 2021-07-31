@@ -1,7 +1,62 @@
+const multer = require('multer');
+const sharp = require('sharp');
+
 const Tour = require('../models/tourModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('./../utils/catchAsync');
 const factory = require('./handlerFactory');
+
+const multerStorage = multer.memoryStorage();
+
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image')) {
+    cb(null, true);
+  } else {
+    cb(new AppError('Not an image! Please upload only images.', 400), false);
+  }
+};
+
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+});
+
+exports.uploadTourImages = upload.fields([
+  { name: 'imageCover', maxCount: 1 }, // Only 1 field called imageCover will be processed
+  { name: 'images', maxCount: 3 }, // Max of 3 images at once
+]);
+
+exports.resizeTourImage = catchAsync(async (req, res, next) => {
+  if (!req.files.imageCover || !req.files.images) return next();
+
+  // 1) Cover Image
+  req.body.imageCover = `tour-${req.params.id}-${Date.now()}-cover.jpeg`; // put this on the body as the update function takes in the whole body
+  await sharp(req.files.imageCover[0].buffer)
+    .resize(2000, 1333) // 3:2 ratio
+    .toFormat('jpeg') // format to jpeg as file is smaller
+    .jpeg({ quality: 90 }) // quality 90%
+    .toFile(`public/img/tours/${req.body.imageCover}`);
+
+  // 2) Images
+  req.body.images = [];
+
+  await Promise.all(
+    req.files.images.map(async (file, i) => {
+      const filename = `tour-${req.params.id}-${Date.now()}-${i + 1}.jpeg`;
+
+      await sharp(file.buffer)
+        .resize(2000, 1333) // 3:2 ratio
+        .toFormat('jpeg') // format to jpeg as file is smaller
+        .jpeg({ quality: 90 }) // quality 90%
+        .toFile(`public/img/tours/${filename}`);
+
+      req.body.images.push(filename);
+    })
+  );
+  // We have to use map to return a list of promises as otherwise it would not wait for the function to finish, and would just call next (none of the image names would be persisted) and then we use Promise.all to resolve the promises
+
+  next();
+});
 
 // Factory methods:
 exports.getAllTours = factory.getAll(Tour);

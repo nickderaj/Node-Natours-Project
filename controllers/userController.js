@@ -34,20 +34,20 @@ const upload = multer({
 
 exports.uploadUserPhoto = upload.single('photo');
 
-exports.resizeUserPhoto = (req, res, next) => {
+exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
   if (!req.file) return next();
 
   // was previously defined by multer upload, so we have to 'redefine' the filename as we use it in the UpdateMe function
   req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
 
-  sharp(req.file.buffer)
+  await sharp(req.file.buffer)
     .resize(500, 500) // 500x500 pixels
     .toFormat('jpeg') // format to jpeg as file is smaller
     .jpeg({ quality: 90 }) // quality 90%
     .toFile(`public/img/users/${req.file.filename}`);
 
   next();
-};
+});
 
 // Factory Methods:
 exports.getAllUsers = factory.getAll(User);
