@@ -22,6 +22,8 @@ const viewRouter = require('./routes/viewRouter');
 //////////////// MIDDLEWARE ////////////////
 const app = express();
 
+app.enable('trust proxy');
+
 // Setting up Pug (server-side rendering):
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views')); // writes '__dirname/views' behind the scenes
