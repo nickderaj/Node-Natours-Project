@@ -8,6 +8,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
+const compression = require('compression');
 
 //////////////// FILES ////////////////
 const AppError = require('./utils/appError');
@@ -93,10 +94,6 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 app.use(mongoSanitize()); // Data sanitisation against NoSQL query injection
 app.use(xss()); // Data sanitsation against XSS
-// app.use((req, res, next) => {
-//   console.log(req.cookies);
-//   next();
-// });
 
 // Prevent parameter pollution
 app.use(
@@ -111,6 +108,8 @@ app.use(
     ],
   })
 );
+
+app.use(compression()); // compress the text that is sent to clients
 
 //////////////// ROUTES ////////////////
 app.use('/', viewRouter);

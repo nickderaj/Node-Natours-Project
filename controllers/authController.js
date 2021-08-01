@@ -92,7 +92,6 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // 2) Verification: Validate token (verify is an async function)
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  // console.log(decoded);
 
   // 3) User still exists
   const currentUser = await User.findById(decoded.id);
@@ -174,7 +173,6 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     passwordResetToken: hashedToken,
     passwordResetExpires: { $gt: Date.now() },
   });
-  console.log(user);
 
   // 2) If token has not expired, and there is user, set new password
   if (!user) return next(new AppError('Token is invalid or has expired', 400));
