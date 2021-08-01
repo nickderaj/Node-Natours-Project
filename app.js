@@ -18,6 +18,7 @@ const tourRouter = require('./routes/tourRouter');
 const userRouter = require('./routes/userRouter');
 const reviewRouter = require('./routes/reviewRouter');
 const bookingRouter = require('./routes/bookingRouter');
+const bookingController = require('./controllers/bookingController');
 const viewRouter = require('./routes/viewRouter');
 
 //////////////// MIDDLEWARE ////////////////
@@ -95,6 +96,13 @@ const limiter = rateLimit({
   message: 'Too many requests from this IP, please try again in an hour!',
 });
 app.use('/api', limiter);
+
+app.post(
+  '/webhook-checkout',
+  express.raw({ type: 'application/json' }),
+  bookingController.webhookCheckout
+);
+
 app.use(express.json({ limit: '10kb' })); // Body parser, reading data from the body into req.body
 app.use(cookieParser()); // Parse the data from the cookies
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
