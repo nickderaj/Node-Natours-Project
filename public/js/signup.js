@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { hideAlert, showAlert } from './alert';
 
-export const signup = async (name, email, photo, password, passwordConfirm) => {
+export const signup = async (name, email, password, passwordConfirm) => {
   try {
     const res = await axios({
       method: 'POST',
@@ -9,7 +9,6 @@ export const signup = async (name, email, photo, password, passwordConfirm) => {
       data: {
         name,
         email,
-        photo,
         password,
         passwordConfirm,
       },
@@ -19,7 +18,7 @@ export const signup = async (name, email, photo, password, passwordConfirm) => {
       showAlert('success', 'Signed up successfully!');
       window.setTimeout(() => {
         location.assign('/');
-      }, 1000);
+      }, 500);
     }
   } catch (err) {
     hideAlert();

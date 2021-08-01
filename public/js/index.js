@@ -40,11 +40,9 @@ if (signupForm) {
     e.preventDefault();
     const name = document.getElementById('username').value;
     const email = document.getElementById('email').value;
-    const photo = document.getElementById('photo').value;
     const password = document.getElementById('password').value;
     const passwordConfirm = document.getElementById('passwordConfirm').value;
-    signup(name, email, photo, password, passwordConfirm);
-    console.log(email, password);
+    signup(name, email, password, passwordConfirm);
   });
 }
 

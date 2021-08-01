@@ -8608,7 +8608,7 @@ function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
 var signup = /*#__PURE__*/function () {
-  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(name, email, photo, password, passwordConfirm) {
+  var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(name, email, password, passwordConfirm) {
     var res;
     return regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
@@ -8622,7 +8622,6 @@ var signup = /*#__PURE__*/function () {
               data: {
                 name: name,
                 email: email,
-                photo: photo,
                 password: password,
                 passwordConfirm: passwordConfirm
               }
@@ -8635,7 +8634,7 @@ var signup = /*#__PURE__*/function () {
               (0, _alert.showAlert)('success', 'Signed up successfully!');
               window.setTimeout(function () {
                 location.assign('/');
-              }, 1000);
+              }, 500);
             }
 
             _context.next = 11;
@@ -8655,7 +8654,7 @@ var signup = /*#__PURE__*/function () {
     }, _callee, null, [[0, 7]]);
   }));
 
-  return function signup(_x, _x2, _x3, _x4, _x5) {
+  return function signup(_x, _x2, _x3, _x4) {
     return _ref.apply(this, arguments);
   };
 }();
@@ -8802,28 +8801,34 @@ var bookTour = /*#__PURE__*/function () {
         switch (_context.prev = _context.next) {
           case 0:
             _context.prev = 0;
-            stripe = Stripe("".concat(undefined)); // 1) Get session from the server /checkout-session/:tourId
+            stripe = Stripe('pk_test_51JJAyFHf9EtUkfJZtbAmapLD0sgtXGYyKdt2Emp0ly2xqDBtx4fLbsvjks9fj3zhoNdEoQrd6dcklaK5ES5yw1ih006SUZ8eb2'); // 1) Get checkout session from API
 
             _context.next = 4;
-            return (0, _axios.default)("http://127.0.0.1:8000/api/v1/bookings/checkout-session/".concat(tourId));
+            return (0, _axios.default)("/api/v1/bookings/checkout-session/".concat(tourId));
 
           case 4:
             session = _context.sent;
-            return _context.abrupt("return", stripe.redirectToCheckout({
+            _context.next = 7;
+            return stripe.redirectToCheckout({
               sessionId: session.data.session.id
-            }));
+            });
 
-          case 8:
-            _context.prev = 8;
+          case 7:
+            _context.next = 13;
+            break;
+
+          case 9:
+            _context.prev = 9;
             _context.t0 = _context["catch"](0);
+            console.log(_context.t0);
             (0, _alert.showAlert)('error', _context.t0);
 
-          case 11:
+          case 13:
           case "end":
             return _context.stop();
         }
       }
-    }, _callee, null, [[0, 8]]);
+    }, _callee, null, [[0, 9]]);
   }));
 
   return function bookTour(_x) {
@@ -9146,11 +9151,9 @@ if (signupForm) {
     e.preventDefault();
     var name = document.getElementById('username').value;
     var email = document.getElementById('email').value;
-    var photo = document.getElementById('photo').value;
     var password = document.getElementById('password').value;
     var passwordConfirm = document.getElementById('passwordConfirm').value;
-    (0, _signup.signup)(name, email, photo, password, passwordConfirm);
-    console.log(email, password);
+    (0, _signup.signup)(name, email, password, passwordConfirm);
   });
 }
 
