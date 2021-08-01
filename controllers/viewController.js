@@ -4,6 +4,13 @@ const AppError = require('../utils/appError');
 const User = require('../models/userModel');
 const Booking = require('../models/bookingModel');
 
+exports.alerts = (req, res, next) => {
+  const { alert } = req.query;
+  if (alert === 'booking')
+    res.locals.alert = `Your booking was successful! If your booking doesn't show up immediately, please check back shortly.`;
+  next();
+};
+
 exports.getOverview = catchAsync(async (req, res, next) => {
   const tours = await Tour.find();
   res.status(200).render('overview', { title: 'Tour Overview', tours }); // 'tours: tours' is just tours in ES6
